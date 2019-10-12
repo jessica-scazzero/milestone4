@@ -1,0 +1,40 @@
+---
+title: "Milestone #4"
+author: "Jessica Scazzero"
+date: "10/10/19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(readr)
+library(tidyverse)
+diary <- read_csv(file= "Raw-Data/dcpc_2017_indlevel-csv.csv")
+```
+
+```{r plots}
+cash <- diary %>%
+  select(paypref_lt10, paypref_100plus, paypref_10to25, paypref_25to50, paypref_50to100, age, race_white, race_black, race_asian, income_hh) %>%
+  filter(paypref_100plus == 1, paypref_lt10 == 1)
+
+graph <- diary %>%
+  mutate(cash = ifelse(paypref_lt10 == 1, TRUE, FALSE), 
+         cash_1 = ifelse(paypref_100plus == 1, TRUE, FALSE)) %>%
+  filter(income_hh != "NA", age != "NA", cash != "NA", cash_1 != "NA") %>%
+  select(paypref_lt10, cash, cash_1, age, income_hh)
+  
+ggplot(graph, aes_string(graph$age, fill = graph$cash)) + geom_density(position='fill', alpha = 0.5) + 
+         xlab("Age") + labs(fill='Preference for Cash for Low Value Transactions (<$10)', title = "The Relationship Between Age and Preference for Cash", subtitle = "The Federal Reserve's 2017 Diary of Consumer Payment Choice") 
+ggplot(graph, aes_string(graph$age, fill = graph$cash_1)) + geom_density(position='fill', alpha = 0.5) + 
+         xlab("Age") + labs(fill='Preference for Cash for High Value Transactions(>$100)', title = "The Relationship Between Age and Preference for Cash", subtitle = "The Federal Reserve's 2017 Diary of Consumer Payment Choice") 
+
+
+#Source on how to create a conditional probability density plot https://nextjournal.com/eda/conditional-probability-density-plots
+#Scrap Work on creating the plots: 
+#lm(graph~as.matrix(cash))
+#cdens <- cdplot(cash ~ age, plot = FALSE), plot(I(as.numeric(cash) - 1) ~ jitter(age, factor = 2))
+#ggCD.plot(cash ~age, graph, add.label = TRUE, ylevs = 2:1)
+#ggplot(graph, aes(x=age, y=cash)) + geom_density()
+#geom_point() + geom_smooth(method = "lm")
+
+```
